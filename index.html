@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四海 · 一对一匿名匹配聊天</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 页面加载前的样式 */
+        body.loading {
+            opacity: 0;
+        }
+    </style>
+</head>
+    <div class="userInfo" id="username">
+        <button id="nameBtn" class="name-display-btn">
+            <span class="name-icon">
+                <i class="fas fa-user-circle"></i>
+            </span>
+            <span class="userInfo" id="username">等待匹配...</span>
+        </button>
+    </div>
+    <!-- 主题切换按钮 -->
+    <div class="theme-switcher">
+        <button id="themeToggle" class="theme-toggle-btn">
+            <span class="theme-icon">
+                <i class="fas fa-sun"></i>
+            </span>
+            <span class="theme-text">日间模式</span>
+        </button>
+    </div>
+
+    <!-- 连接状态指示器 -->
+    <div class="connection-status">
+        <span class="status-indicator" id="globalStatusIndicator"></span>
+        <span id="globalStatusText">连接中...</span>
+    </div>
+
+    <div class="container">
+        <!-- 欢迎/设置界面 -->
+        <div id="welcomeScreen" class="screen active">
+            <div class="welcome-card">
+                <div class="welcome-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h1>四海</h1>
+                <p class="subtitle">完全匿名的聊天匹配平台</p>
+                
+                <div class="setup-form">
+                    <h3><i class="fas fa-user-cog"></i> 设置你的匹配偏好</h3>
+                    
+                    <div class="form-group">
+                        <label for="genderSelect"><i class="fas fa-venus-mars"></i> 你的性别</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="gender" value="男" checked>
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">男</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="gender" value="女">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">女</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="gender" value="保密">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">保密</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="matchPreferenceSelect"><i class="fas fa-filter"></i> 希望匹配的性别</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="matchPreference" value="男" checked>
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">男</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="matchPreference" value="女">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">女</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="matchPreference" value="随机">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">随机</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="privacy-notice">
+                        <i class="fas fa-shield-alt"></i>
+                        <p>四海·尊重您的隐私</p>
+                        <ul>
+                            <li>完全匿名，无需注册登录</li>
+                            <li>您的聊天内容不会被存储</li>
+                            <li>断开连接后记录永久销毁</li>
+                            <li>基于您的偏好智能匹配</li>
+                        </ul>
+                    </div>
+                    
+                    <button id="startMatchingBtn" class="btn-primary">
+                        <i class="fas fa-search"></i> 开始匹配聊天
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 等待匹配界面 -->
+        <div id="waitingScreen" class="screen">
+            <div class="waiting-card">
+                <div class="loading-icon">
+                    <div class="spinner"></div>
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h2>寻找对话伙伴中...</h2>
+                <p class="waiting-message" id="waitingMessage">正在为您寻找符合偏好的聊天伙伴，请稍候</p>
+                
+                <div class="waiting-stats">
+                    <div class="stat">
+                        <i class="fas fa-users"></i>
+                        <span>等待人数: <span id="waitingCount">0</span></span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-clock"></i>
+                        <span>等待时间: <span id="waitingTime">0</span>秒</span>
+                    </div>
+                    <div class="stat">
+                        <span>你的昵称: <span id="username"></span>
+                    </div>
+                </div>
+                
+                <div class="waiting-actions">
+                    <button id="cancelMatchingBtn" class="btn-secondary">
+                        <i class="fas fa-times"></i> 取消匹配
+                    </button>
+                </div>
+                
+                <div class="tips">
+                    <h4><i class="fas fa-lightbulb"></i> 匹配提示</h4>
+                    <p>• 系统根据双方设置偏好进行智能匹配</p>
+                    <p>• 选择"随机"会获得更快的匹配速度</p>
+                    <p>• 匹配成功后开始一对一匿名对话</p>
+                    <p>• 随时可以跳过当前匹配寻找新伙伴</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 聊天界面 -->
+        <div id="chatScreen" class="screen">
+            <div class="chat-container">
+                <header class="chat-header">
+                    <div class="partner-info">
+                        <div class="partner-avatar" id="partnerAvatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="partner-details">
+                            <h3 id="partnerName">匹配用户</h3>
+                            <div class="partner-status">
+                                <span class="status-indicator active"></span>
+                                <span id="partnerGender">未知性别</span>
+                                <span class="divider">•</span>
+                                <span id="connectionStatus">已连接</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-actions">
+                        <button id="skipMatchBtn" class="btn-icon" title="跳过此匹配">
+                            <i class="fas fa-forward"></i>
+                            <span>跳过</span>
+                        </button>
+                        <button id="rematchBtn" class="btn-icon" title="重新匹配">
+                            <i class="fas fa-redo"></i>
+                            <span>重配</span>
+                        </button>
+                        <button id="disconnectBtn" class="btn-icon danger" title="断开连接">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>离开</span>
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="welcome-message">
+                        <i class="fas fa-comment-alt"></i>
+                        <h3>匹配成功！</h3>
+                        <p>您可以开始与匹配的伙伴聊天了</p>
+                        <p class="match-info">本次匹配基于双方的性别偏好设置</p>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <div class="input-container">
+                        <input type="text" id="messageInput" placeholder="输入消息... (按Enter发送)" maxlength="500">
+                        <button id="sendMessageBtn" class="btn-send">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="input-hints">
+                        <span><i class="fas fa-info-circle"></i> 所有消息都是匿名的，断开连接后聊天记录将消失</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主题切换通知容器（由JS动态创建） -->
+    
+    <!-- 脚本引入 -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+    
+    <!-- 页面加载完成后的初始化 -->
+    <script>
+        // 页面加载完成后移除loading类
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.remove('loading');
+            
+            // 检查必要的DOM元素是否存在
+            const requiredElements = [
+                'welcomeScreen', 'waitingScreen', 'chatScreen',
+                'startMatchingBtn', 'cancelMatchingBtn', 'themeToggle'
+            ];
+            
+            let allElementsExist = true;
+            requiredElements.forEach(id => {
+                if (!document.getElementById(id)) {
+                    console.error(`未找到ID为"${id}"的DOM元素`);
+                    allElementsExist = false;
+                }
+            });
+            
+            if (allElementsExist) {
+                console.log('页面初始化完成，所有必要元素已加载');
+            }
+        });
+        
+        // 页面加载失败处理
+        window.addEventListener('error', function(e) {
+            console.error('页面加载错误:', e.message);
+            
+            // 显示用户友好的错误消息
+            if (!document.querySelector('.error-message')) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #ff6b6b;
+                    color: white;
+                    padding: 20px 30px;
+                    border-radius: 10px;
+                    text-align: center;
+                    z-index: 9999;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                `;
+                errorDiv.innerHTML = `
+                    <h3>页面加载遇到问题</h3>
+                    <p>请刷新页面重试，或检查控制台查看详细错误信息</p>
+                    <button onclick="location.reload()" style="
+                        margin-top: 15px;
+                        padding: 8px 20px;
+                        background: white;
+                        color: #ff6b6b;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">刷新页面</button>
+                `;
+                document.body.appendChild(errorDiv);
+            }
+        });
+    </script>
+    
+    <
